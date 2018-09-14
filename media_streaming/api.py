@@ -10,10 +10,12 @@ def find_tv(casts):
     return [c for c in casts
             if c.device.friendly_name == 'Family room TV'][0]
 
+
 @bp.route('/films')
 def list_films():
     films = [to_view_model(film, flask) for film in db.list_films()]
     return flask.jsonify(films)
+
 
 def to_view_model(film: dict, flask: flask.Flask):
     return {
@@ -21,6 +23,7 @@ def to_view_model(film: dict, flask: flask.Flask):
         "cast_url": flask.url_for('.cast', film_id=film['id']),
         "name": film['name']
     }
+
 
 @bp.route('/cast/<string:film_id>')
 def cast(film_id):

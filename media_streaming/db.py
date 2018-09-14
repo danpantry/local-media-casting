@@ -1,6 +1,7 @@
 import io
 import json
 
+
 def list_films():
     library = json.load(io.open('library.json'))
     films = library['films'] or {}
