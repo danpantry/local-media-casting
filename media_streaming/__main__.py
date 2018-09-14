@@ -1,3 +1,7 @@
-from . import server
+import flask
+from .api import bp
 
-server.app.run()
+app = flask.Flask(__name__)
+app.register_blueprint(bp)
+
+app.run()

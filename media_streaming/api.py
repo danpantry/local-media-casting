@@ -3,12 +3,17 @@ import pychromecast
 from . import db
 
 
-app = flask.Flask(__name__)
+bp = flask.Blueprint('api', 'api', url_prefix='/api')
+
 
 def find_tv(casts):
     return [c for c in casts
             if c.device.friendly_name == 'Family room TV'][0]
 
+@bp.route('/films')
+def list_films():
+    films = [to_view_model(film, flask) for film in db.list_films()]
+    return flask.jsonify(films)
 
 def to_view_model(film: dict, flask: flask.Flask):
     return {
@@ -17,16 +22,7 @@ def to_view_model(film: dict, flask: flask.Flask):
         "name": film['name']
     }
 
-@app.route('/', strict_slashes=False)
-def library():
-    print(to_view_model(db.list_films()[0], flask))
-    return flask.render_template(
-        'library.html.jinja',
-        entries=[to_view_model(film, flask) for film in db.list_films()]
-    )
-
-
-@app.route('/cast/<string:film_id>')
+@bp.route('/cast/<string:film_id>')
 def cast(film_id):
     film = db.find_film_by_id(id)
     if film == None:
