@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <ol class='EntryList'>
+      {%- for entry in entries %}
+        <li class='Entry' data-id='{{ entry.id }}'>
+          <h1 class='Name'>
+            {{ entry.name }}
+          </h1>
+          <a href='{{ entry.cast_url }}'>Start stream</a>
+        </li>
+      {%- endfor %}
+    </ol>          
+  </body>
+</html>
