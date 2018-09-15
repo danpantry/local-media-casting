@@ -2,11 +2,13 @@ import React from 'react'
 import * as util from './util'
 import { getJson } from './http'
 import CastButton from './CastButton'
+import ThumbnailGallery from './ThumbnailGallery'
 
 function FilmView({ film }) {
   return (
     <div>
       <h1>{film.name}</h1>
+      <ThumbnailGallery thumbnails={film.thumbnails} />
       <CastButton filmId={film.id} />
     </div>
   )

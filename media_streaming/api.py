@@ -1,6 +1,7 @@
 import flask
 from . import db
 from . import devices
+from . import views
 
 
 bp = flask.Blueprint('api', 'api', url_prefix='/api')
@@ -16,11 +17,29 @@ def find_film(film_id):
     return flask.jsonify(film.to_json())
 
 
+@bp.route('/films/<string:film_id>/thumbnails/<fname>')
+def film_thumbnail(film_id, fname):
+    film = db.find_film_by_id(film_id)
+    if film is None:
+        return flask.Response(status=404)
+
+    try:
+        stream, media_type = film.open_thumbnail(fname)
+        return flask.Response(stream, status=200, content_type=media_type)
+    except FileNotFoundError:
+        return flask.Response(status=404)
+
+
 @bp.route('/films')
 def list_films():
-    return flask.jsonify([
-        film.to_json() for film in db.list_films()
-    ])
+    def make_thumbnail_url(film_id, fname):
+        return flask.url_for(
+            '.film_thumbnail', film_id=film_id, fname=fname, _external=True)
+
+    items = [views.FilmView(film).render(make_thumbnail_url)
+             for film in db.list_films()]
+
+    return flask.jsonify(items)
 
 
 @bp.route('/devices')

@@ -1,24 +1,30 @@
 import io
+import os
 import json
-import media_streaming.util as util
+from . import util
+from . import mediafolder
 
 
 class Film:
     def __init__(self, id, blob):
         self.name = blob.get('name')
-        self.location = blob.get('location')
+        self.folder = mediafolder.open(blob.get('location'))
         self.id = id
 
     def to_json(self):
         return {
             'id': self.id,
-            'name': self.name,
-            'location': self.location
+            'name': self.name
         }
 
+    def thumbnails(self):
+        return self.folder.thumbnails()
+
+    def open_thumbnail(self, fname: str):
+        return self.folder.open_thumbnail(fname)
+
     def open(self):
-        # TODO: Ensure that this user cannot access sensitive files lke /etc/passwd on startup
-        return (io.open(self.location + "/media.mp4", 'rb'), 'video/mp4')
+        return self.folder.media_file()
 
 
 class DefaultDevice:
@@ -50,7 +56,7 @@ def list_films():
     return _get_table('films', Film)
 
 
-def find_film_by_id(key: str):
+def find_film_by_id(key: str) -> Film:
     return _find_in_table('films', Film, key)
 
 
