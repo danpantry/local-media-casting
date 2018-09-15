@@ -1,0 +1,23 @@
+.DeviceBox {
+  margin: 10px;
+  padding: 10px;
+  border: solid 1px black;
+  width: 300px;
+}
+
+.DeviceBox__Title {
+  padding: 0;
+  margin: 0;
+  font-size: 1em;
+}
+
+.DeviceBox__DeviceList {
+  padding: 20px;
+  padding-right: 0px;
+  font-size: 0.9em;
+}
+
+.DeviceBox__StatusBar {
+  display: flex;
+  justify-content: space-between;
+}

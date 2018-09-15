@@ -1,0 +1,8 @@
+.Anchor {
+  position: absolute;
+}
+
+.Anchor--bottomRight {
+  right: 0;
+  bottom: 0;
+}

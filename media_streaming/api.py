@@ -45,7 +45,7 @@ def list_films():
 @bp.route('/devices')
 def list_devices():
     return flask.jsonify([
-        device.to_json() for device in devices.list()
+        device.to_json() for device in devices.discover()
     ])
 
 

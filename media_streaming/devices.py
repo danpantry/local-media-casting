@@ -21,10 +21,9 @@ class Device:
         self.cast.play_media(url, media_type)
 
 
-@util.memoize
-def list():
+def discover():
     return [Device(cast) for cast in pychromecast.get_chromecasts()]
 
 
 def find_by_id(id):
-    return util.first_default(list())
+    return util.first_default(discover())
