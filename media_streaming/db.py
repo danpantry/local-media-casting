@@ -18,7 +18,7 @@ class Film:
 
     def open(self):
         # TODO: Ensure that this user cannot access sensitive files lke /etc/passwd on startup
-        return (io.open(self.location, 'rb'), 'video/mp4')
+        return (io.open(self.location + "/media.mp4", 'rb'), 'video/mp4')
 
 
 class DefaultDevice:

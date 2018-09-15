@@ -176,3 +176,6 @@ tags
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+media/*
+!media/00000000-0000-0000-0000-000000000000/
