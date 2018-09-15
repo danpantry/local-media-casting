@@ -111,7 +111,7 @@ export function getPropFromLocationState(
   propName,
   defaultValue = undefined
 ) {
-  if (!location || 'state' in location === false) {
+  if (!location || location.state === undefined) {
     return defaultValue
   }
 

@@ -1,9 +1,15 @@
 import React from 'react'
 import * as util from './util'
 import { getJson } from './http'
+import CastButton from './CastButton'
 
 function FilmView({ film }) {
-  return <div />
+  return (
+    <div>
+      <h1>{film.name}</h1>
+      <CastButton filmId={film.id} />
+    </div>
+  )
 }
 
 FilmView.fetchData = async incomingProps => {

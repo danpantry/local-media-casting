@@ -4,5 +4,11 @@
       "name": "Fantastic Beasts and Where to Find Them",
       "location": "./fantastic_beasts.mp4"
     }
+  },
+  "default_devices": {
+    "default": {
+      "device_id": "cf078150-fe20-ce36-9455-d27775aeceb6",
+      "name": "Family room TV"
+    }
   }
 }

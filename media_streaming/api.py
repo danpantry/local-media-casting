@@ -6,16 +6,11 @@ from . import devices
 bp = flask.Blueprint('api', 'api', url_prefix='/api')
 
 
-def find_tv(casts):
-    return [c for c in casts
-            if c.device.friendly_name == 'Family room TV'][0]
-
-
 @bp.route('/films/<string:film_id>')
 def find_film(film_id):
     film = db.find_film_by_id(film_id)
 
-    if film == None:
+    if film is None:
         return flask.Response(status=404)
 
     return flask.jsonify(film.to_json())
@@ -28,14 +23,6 @@ def list_films():
     ])
 
 
-def to_view_model(film: dict, flask: flask.Flask):
-    return {
-        "id": film['id'],
-        "cast_url": flask.url_for('.cast', film_id=film['id']),
-        "name": film['name']
-    }
-
-
 @bp.route('/devices')
 def list_devices():
     return flask.jsonify([
@@ -43,11 +30,54 @@ def list_devices():
     ])
 
 
-@bp.route('/cast/<string:film_id>')
-def cast(film_id):
-    film = db.find_film_by_id(id)
-    if film == None:
+def find_device(device_id):
+    if device_id == 'default':
+        default_device = db.find_default_device()
+        if default_device is None:
+            return None
+
+        return devices.find_by_id(
+            default_device.device_id
+        )
+
+    return devices.find_by_id(device_id)
+
+
+@bp.route('/films/<string:film_id>/stream')
+def stream(film_id):
+    film = db.find_film_by_id(film_id)
+    if film is None:
         return flask.Response(status=404)
 
-    tv.play_media('http://192.168.0.241:3000/stream', 'video/mp4')
-    return flask.make_response("Ok!", 200)
+    stream, media_type = film.open()
+    return flask.Response(stream, status=200, content_type=media_type)
+
+
+@bp.route('/devices/<string:device_id>/cast/<string:film_id>', methods=['POST'])
+def cast(device_id, film_id):
+    device = find_device(device_id)
+    if device is None:
+        return flask.jsonify(
+            object="device",
+            error="not_found",
+            id=device_id,
+            message="The device could not be found",
+            status=404
+        )
+
+    film = db.find_film_by_id(film_id)
+    if film is None:
+        return flask.jsonify(
+            object="film",
+            error="not_found",
+            id=film_id,
+            message="The film could not be found",
+            status=404
+        )
+    url = flask.url_for('.stream', film_id=film_id, _external=True)
+    device.play_media(url, 'video/mp4')
+    return flask.jsonify(
+        status="ok",
+        device_id=device.id,
+        film_id=film_id
+    )
