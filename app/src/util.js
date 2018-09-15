@@ -1,4 +1,5 @@
 import React from 'react'
+import warning from 'warning'
 
 export function getDisplayName(componentClass) {
   return componentClass.displayName || componentClass.name
@@ -9,14 +10,18 @@ export function getDisplayName(componentClass) {
  *
  * The `fetchData` property on the given `componentClass` is called when the component is mounted. `fetchData` must return a `Promise`. The object yielded by the `Promise` will be passed directly as `props` to the `componentClass` and the resulting element rendered.
  *
+ * Props that are passed directly to the created component are passed to fetchData but are not passed on to the rendered component. If you want to do this, merge in the props in the fetchData method
+ *
  * While the component is rendering, a loading message is displayed.
+ *
+ * The `componentWillRefetch(previousProps)` static method is called when the props change. Return true from this method to trigger a re-fetch of data.
  *
  * @param {Function} componentClass The class of the component to connect. This must be a function which returns a React element when invoked and has a `fetchData` property.
  *
  * @example
  *
  *    function MyComponent({ todos }) { return null }
- *    MyComponent.fetchData = () => Promise.resolve({ todos: [] })
+ *    MyComponent.fetchData = (props) => Promise.resolve({ todos: [] })
  *
  *    const ConnectedComponent = connect(MyComponent)
  *    const element = React.createElement(ConnectedComponent)
@@ -24,20 +29,50 @@ export function getDisplayName(componentClass) {
  *    // This will call fetchData() when it is mounted.
  *    // After the data is fetched, this is equivalent to:
  *    React.createElement(MyComponent, { todos: [] })
+ *
+ *    // example of merging props
+ *    function MyComponent({ todos, className }) { return null }
+ *    MyComponent.fetchData = (props) =>
+ *      Promise.resolve({ todos: [], ...props })
  */
 export function connect(componentClass) {
+  const displayName = getDisplayName(componentClass)
+
   return class ConnectedComponent extends React.Component {
     state = {
       isFetching: true,
       childProps: {}
     }
 
-    static displayName = `connect(${getDisplayName(componentClass)})`
+    constructor() {
+      super()
+
+      warning(
+        componentClass.componentWillRefresh,
+        `${displayName} has no componentWillRefetch property. This component will never refresh! If you are sure this is what you want, create a componentWillRefetch method on the constructor function that always returns false.`
+      )
+    }
+
+    static displayName = `connect(${displayName})`
+
+    async fetchData() {
+      this.setState({ isFetching: true })
+      const data = await componentClass.fetchData(this.props)
+      this.setState({ isFetching: false, childProps: data })
+    }
 
     async componentDidMount() {
-      this.setState({ isFetching: true })
-      const data = await componentClass.fetchData()
-      this.setState({ isFetching: false, childProps: data })
+      return await this.fetchData()
+    }
+
+    async componentDidUpdate(previousProps) {
+      if (!componentClass.componentWillRefetch) {
+        return Promise.resolve()
+      }
+
+      if (componentClass.componentWillRefetch(previousProps)) {
+        return await this.fetchData()
+      }
     }
 
     render() {
