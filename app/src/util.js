@@ -102,3 +102,18 @@ export function connect(componentClass) {
     }
   }
 }
+
+/**
+ * Retrieves a key from the given HTML5 history compliant location state.
+ */
+export function getPropFromLocationState(
+  location,
+  propName,
+  defaultValue = undefined
+) {
+  if (!location || 'state' in location === false) {
+    return defaultValue
+  }
+
+  return location.state[propName] || defaultValue
+}

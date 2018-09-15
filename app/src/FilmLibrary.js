@@ -12,7 +12,7 @@ function FilmLibrary({ films }) {
           <Clickable
             path="/films/:filmId"
             parameters={{ filmId: film.id }}
-            state={film}
+            state={{ film }}
           >
             <Film film={film} />
           </Clickable>
