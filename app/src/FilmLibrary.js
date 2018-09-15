@@ -2,13 +2,20 @@ import React from 'react'
 import * as http from './http'
 import * as util from './util'
 import Film from './Film'
+import Clickable from './Clickable'
 
 function FilmLibrary({ films }) {
   return (
     <ol>
       {films.map(film => (
         <li key={film.id}>
-          <Film film={film} />
+          <Clickable
+            path="/films/:filmId"
+            parameters={{ filmId: film.id }}
+            state={film}
+          >
+            <Film film={film} />
+          </Clickable>
         </li>
       ))}
     </ol>
