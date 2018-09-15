@@ -55,10 +55,16 @@ export function connect(componentClass) {
 
     static displayName = `connect(${displayName})`
 
-    async fetchData() {
+    fetchData() {
       this.setState({ isFetching: true })
-      const data = await componentClass.fetchData(this.props)
-      this.setState({ isFetching: false, childProps: data })
+      // HACK this is a massive bodge that prevents tests from failing.
+      // In tests, componentDidMount() will fire but the component might get unmounted immediately after it is mounted. If this is the case, it will throw an error that crashes the process - unless we delay the invocation of fetchData() 'til the next tick. We use setTimeout() to make sure this comes after all queued functions are finished, rather than setImmediate() which only checks I/O events.
+      // A long term solution to this would be to implement a mock API and use setImmediate() in the tests.
+
+      setTimeout(async () => {
+        const data = await componentClass.fetchData(this.props)
+        this.setState({ isFetching: false, childProps: data })
+      }, 0)
     }
 
     async componentDidMount() {
